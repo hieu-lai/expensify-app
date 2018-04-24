@@ -6,16 +6,35 @@ class IndecisionApp extends React.Component {
     this.handleAddOption = this.handleAddOption.bind(this);
     this.handleDeleteOption = this.handleDeleteOption.bind(this);
     this.state = {
-      options: props.options
+      options: []
     };
   }
-
+  componentDidMount() {
+    try {
+      const json = localStorage.getItem('options');
+      const options = JSON.parse(json);
+      if(options) {
+        this.setState(() => ({ options }));
+      }
+    } catch(e) {
+      // Do nothing
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if(prevState.options.length !== this.state.options.length) {
+      const json = JSON.stringify(this.state.options);
+      localStorage.setItem('options', json);
+    }
+  }
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
   handleDeleteOptions() {
     this.setState(() => ({ options: [] }));
   }
   handleDeleteOption(optionToRemove) {
     this.setState((prevState) => ({
-      options: prevState.options.filter((option) => { optionToRemove !== option })
+      options: prevState.options.filter((option) => optionToRemove !== option)
     }));
   }
   handlePick() {
@@ -55,10 +74,6 @@ class IndecisionApp extends React.Component {
   }
 }
 
-IndecisionApp.defaultProps = {
-  options: []
-};
-
 const Header = (props) => {
   return (
     <div>
@@ -88,6 +103,8 @@ const Action = (props) => {
 const Options = (props) => {
   return (
     <div>
+      <button onClick={props.handleDeleteOptions}>Remove All</button>
+      {props.options.length === 0 && <p>Please add an option to get started!</p>}
       {
         props.options.map((option) => (
           <Option 
@@ -97,7 +114,6 @@ const Options = (props) => {
           />
         ))  
       }
-      <button onClick={props.handleDeleteOptions}>Remove All</button>
     </div>
   );
 };
@@ -132,6 +148,10 @@ class AddOption extends React.Component {
     const error = this.props.handleAddOption(option);
     
     this.setState(() => ({ error }));
+
+    if(!error) {
+      e.target.elements.option.value = '';
+    }
 
   }
   render() {
