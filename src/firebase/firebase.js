@@ -158,7 +158,7 @@ export { firebase, database as default };
 
 // database.ref()
 //   .remove()
-//   .the(() => {
+//   .then(() => {
 //     console.log('Data was removed');
 //   }).catch(() => {
 //     console.log('Did not remove data', e);
